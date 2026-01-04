@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Couples Awareness Dialogue Tool</title>
+
+<style>
+  body{
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    margin:18px;
+    color:#111
+  }
+  h1,h2{color:#0b63a7}
+  .section{
+    border:1px solid #ddd;
+    padding:12px;
+    border-radius:8px;
+    margin-bottom:14px;
+    background:#fbfbff
+  }
+  .q{margin:12px 0;padding:8px}
+  .q label{display:block;font-weight:600}
+  .example{font-style:italic;color:#555;margin:4px 0}
+  textarea{
+    width:100%;
+    min-height:55px;
+    margin-top:6px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    padding:6px;
+    font-size:14px
+  }
+  textarea:focus{
+    outline:none;
+    border-color:#0b63a7;
+    box-shadow:0 0 3px #0b63a7
+  }
+  select{
+    margin-top:6px;
+    padding:6px;
+    border-radius:5px;
+    border:1px solid #ccc;
+    width:100%
+  }
+  .subhead{
+    margin-top:10px;
+    font-weight:600;
+    font-size:14px
+  }
+  .btns{margin:16px 0}
+  button{
+    background:#0b63a7;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer
+  }
+  button.secondary{background:#777}
+  footer{
+    margin-top:24px;
+    color:#666;
+    font-size:13px
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Couples Awareness Dialogue Tool</h1>
+<p>
+One partner answers first. The other partner responds with agreement level
+and reflection. Use gently and respectfully.
+</p>
+
+<div id="sections"></div>
+
+<div class="btns">
+  <button id="saveBtn">Save responses</button>
+  <button id="resetBtn" class="secondary" style="margin-left:8px">Reset</button>
+</div>
+
+<footer>
+<p>
+This tool is designed to encourage understanding, not judgement.
+Pause if emotions rise and return later.
+</p>
+</footer>
+
+<script>
+/* ================= QUESTIONS ================= */
+
+const questions = [
+  
+  ["Communication & Emotional Awareness", "I try to understand my partner’s subtle emotional signals.", "noticing tone, silence, facial expressions"],
+  ["Communication & Emotional Awareness", "I express my needs clearly instead of hinting.", "I need help today"],
+  ["Communication & Emotional Awareness", "I listen without interrupting.", "allowing partner to finish fully"],
+  ["Communication & Emotional Awareness", "I share important information openly (emotional or practical).", "finances, stress, concerns"],
+  ["Communication & Emotional Awareness", "I avoid reacting quickly or emotionally.", "not raising voice suddenly"],
+  ["Communication & Emotional Awareness", "I avoid escalating situations due to misunderstandings.", "not turning small issues into fights"],
+  ["Communication & Emotional Awareness", "I consider how my tone affects my partner.", "avoiding harsh tone"],
+  ["Communication & Emotional Awareness", "I discuss finances calmly.", "avoiding blame"],
+
+  ["Communication & Emotional Awareness", "I express need for alone or together time clearly.", "I need quiet today"],
+  ["Communication & Emotional Awareness", "I share emotions calmly.", "saying I felt hurt"],
+  
+    ["Support & Respect", "I avoid bragging or exaggerating about my family.", "My family does everything better"],
+  ["Support & Respect", "I avoid comparing families.", "Our side is better than yours"],
+  ["Support & Respect", "I avoid cultural or family-based negative comments.", "Your culture is not good"],
+  ["Support & Respect", "I speak respectfully about both families.", "avoiding sarcasm about parents"],
+  ["Support & Respect", "I take responsibility for my mistakes.", "saying I was wrong"],
+   ["Support & Respect", "I stand by my partner when they need support.", "supporting them in conflict"],
+  ["Support & Respect", "I treat both families fairly.", "balanced reactions"],
+  ["Support & Respect", "I manage my anger before reacting.", "pausing and calming"],
+  ["Support & Respect", "I avoid bringing past or money into every argument.", "avoiding you always statements"],
+  ["Support & Respect", "I help reduce my partner’s workload.", "chores, errands"],
+
+  ["Support & Respect", "I notice when partner needs help or comfort.", "emotional support"],
+
+  ["Support & Respect", "I avoid hiding things that affect trust.", "purchases or messages"],
+  ["Support & Respect", "I appreciate partner’s effort to improve.", "praising small changes"],
+
+  ["Affection & Appreciation", "I initiate affectionate gestures.", "hugs, sweet messages"],
+  ["Affection & Appreciation", "I express love in the way my partner feels loved.", "love languages"],
+ 
+  ["Affection & Appreciation", "I show appreciation regularly.", "saying thank you"],
+  ["Affection & Appreciation", "I give small surprises.", "chocolates, notes"],
+  ["Affection & Appreciation", "I acknowledge my partner socially.", "praising them publicly"],
+  ["Affection & Appreciation", "I maintain personal grooming.", "neat appearance"],
+  ["Affection & Appreciation", "I put effort into special days.", "birthdays, anniversaries"],
+  ["Affection & Appreciation", "I express affection outside special days.", "random hugs or messages"],
+  ["Affection & Appreciation", "I communicate love consistently.", "holding hands, saying I miss you"],
+  ["Affection & Appreciation", "I avoid complaining about gifts.", "not criticizing presents"],
+
+
+
+  ["Togetherness & Bonding", "I help plan dates or outings.", "suggesting dinner or movie"],
+  ["Togetherness & Bonding", "I make time for shared leisure.", "watching a movie together"],
+  ["Togetherness & Bonding", "I make time for shared activities.", "movies, walks"],
+  ["Togetherness & Bonding", "I participate in making memories.", "selfies, photos"],
+  ["Togetherness & Bonding", "I help maintain emotional peace at home.", "avoiding unnecessary conflicts"],
+  ["Togetherness & Bonding", "I help create memories.", "photos, outings"],
+  ["Togetherness & Bonding", "I keep relationship fun and playful.", "jokes, small surprises"],
+  ["Togetherness & Bonding", "I engage in daily bonding moments.", "tea together"],
+
+  ["Togetherness & Bonding", "I prioritize relationship despite stress.", "making time for partner"],
+  ["Togetherness & Bonding", "I allow space for romance.", "holding hands, cuddling"],
+
+  ["Self-Reflection", "I reflect on my own mistakes.", "looking inward at my patterns"],
+  ["Self-Reflection", "I ask a trusted non-family friend for feedback.", "Am I overreacting"],
+  ["Self-Reflection", "I am open to outside feedback.", "mentor or counselor insights"],
+  ["Self-Reflection", "I avoid surrounding myself only with people who agree with me.", "avoiding echo chambers"],
+  ["Self-Reflection", "I consider feedback instead of becoming defensive.", "listening calmly"],
+  ["Self-Reflection", "I try to understand my partner’s viewpoint.", "imagining their feelings"],
+  ["Self-Reflection", "I improve based on patterns I see in myself.", "reducing nagging"],
+  ["Self-Reflection", "I have a neutral person to point out blind spots.", "honest friend"],
+  ["Self-Reflection", "I seek advice to understand partner better.", "books or friends"],
+  ["Self-Reflection", "I take responsibility to change harmful behaviours.", "correcting habits"],
+  ["Self-Reflection", "I seek understanding, not winning.", "connection over ego"]
+
+
+];
+
+/* ================= SECTIONS ================= */
+
+const sectionTitles = [
+  "Communication & Emotional Awareness",
+   "Support & Respect",
+  "Affection & Appreciation",
+ 
+  "Togetherness & Bonding",
+  "Self-Reflection"
+];
+
+const sectionBreaks = [0,8,23,33,43];
+
+const container = document.getElementById("sections");
+let currentSection;
+
+/* ================= BUILD UI ================= */
+
+questions.forEach((q,i)=>{
+console.log(q)
+console.log(i)
+  if(i===0 || sectionBreaks.includes(i)){
+    currentSection = document.createElement("div");
+    currentSection.className = "section";
+    const h = document.createElement("h2");
+    h.textContent = sectionTitles[container.children.length];
+    currentSection.appendChild(h);
+    container.appendChild(currentSection);
+  }
+
+  const wrap = document.createElement("div");
+  wrap.className = "q";
+
+  const lbl = document.createElement("label");
+  lbl.textContent = (i+1)+". "+q[1];
+  wrap.appendChild(lbl);
+
+  const ex = document.createElement("div");
+  ex.className = "example";
+  ex.textContent = "Example: "+q[2];
+  wrap.appendChild(ex);
+
+  // Respondent 1
+  const r1h = document.createElement("div");
+  r1h.className = "subhead";
+  r1h.textContent = "Respondent 1";
+  wrap.appendChild(r1h);
+
+  const r1 = document.createElement("textarea");
+  r1.dataset.r1 = "r1_"+(i+1);
+  r1.placeholder = "Respondent 1: share your experience or thoughts…";
+  wrap.appendChild(r1);
+
+  // Respondent 2 agreement
+  const r2h = document.createElement("div");
+  r2h.className = "subhead";
+  r2h.textContent = "Respondent 2 — Agreement";
+  wrap.appendChild(r2h);
+
+  const sel = document.createElement("select");
+  sel.dataset.r2agree = "r2agree_"+(i+1);
+  ["","Agree","Somewhat agree","Disagree"].forEach(t=>{
+    const o = document.createElement("option");
+    o.value = t;
+    o.textContent = t || "Select option…";
+    sel.appendChild(o);
+  });
+  wrap.appendChild(sel);
+
+  // Respondent 2 notes
+  const r2 = document.createElement("textarea");
+  r2.dataset.r2 = "r2_"+(i+1);
+  r2.placeholder = "Respondent 2: explain your perspective…";
+  wrap.appendChild(r2);
+
+  currentSection.appendChild(wrap);
+});
+
+/* ================= SAVE ================= */
+
+document.getElementById("saveBtn").addEventListener("click", ()=>{
+  const responses = {};
+  for(let i=1;i<=questions.length;i++){
+    responses["q"+i] = {
+      respondent1: document.querySelector('[data-r1="r1_'+i+'"]').value,
+      respondent2_agreement: document.querySelector('[data-r2agree="r2agree_'+i+'"]').value,
+      respondent2_note: document.querySelector('[data-r2="r2_'+i+'"]').value
+    };
+  }
+
+  const data = JSON.stringify({
+    timestamp: new Date().toISOString(),
+    responses
+  }, null, 2);
+
+  const a = document.createElement("a");
+  a.href = "data:text/json;charset=utf-8,"+encodeURIComponent(data);
+  a.download = "couples_dialogue_responses.json";
+  a.click();
+});
+
+/* ================= RESET ================= */
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  for(let i=1;i<=questions.length;i++){
+    document.querySelector('[data-r1="r1_'+i+'"]').value = "";
+    document.querySelector('[data-r2agree="r2agree_'+i+'"]').value = "";
+    document.querySelector('[data-r2="r2_'+i+'"]').value = "";
+  }
+});
+</script>
+
+</body>
+</html>
